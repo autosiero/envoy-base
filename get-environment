@@ -1,0 +1,88 @@
+#!/usr/bin/env php
+<?php
+
+// Count args
+if ($argc < 4 || $argc > 5) {
+    echo "Expected 3 or 4 arguments\n";
+    echo "Usage: {$argv[0]} [--json | --github] {branch} {hash} {tag}\n";
+    exit(1);
+}
+
+// Get paths
+$paths = require dirname(realpath(__FILE__)) . '/file-finder.php';
+
+// Move to root
+chdir($paths['root']);
+
+// Get args
+$type = 'github';
+if ($argc === 5) {
+    $flag = array_splice($argv, 1, 1)[0];
+    if (!preg_match('/^--(json|github)$/', $flag, $matches)) {
+        echo "Invalid flag, use --json or --github";
+        exit(1);
+    }
+    $type = $matches[1];
+}
+$branch = preg_match('/([a-z][-_a-z0-9]+)$/', "{$argv[1]}", $matches) ? $matches[1] : "{$argv[1]}";
+$tag = preg_match('/([a-z][-_a-z0-9]+)$/', "{$argv[3]}", $matches) ? $matches[1] : "{$argv[3]}";
+$hash = $argv[2] ?: null;
+
+// Get hash if missing
+$hash ??= trim(`git log -1 --format='%H'`);
+
+// Get tag
+$isTag = isset($tag) && !empty($tag) && preg_match('/^v\d+\.\d+\.\d+$/', $tag, $matches);
+$tag = $isTag ? $tag : null;
+
+// If a tag is set, find it's hash
+if ($isTag) {
+    $tagRef = escapeshellarg("refs/tags/{$tag}");
+    $hash = trim(`git log -1 --format='%H' {$tagRef}`);
+}
+
+// Get environments
+$environments = json_decode(file_get_contents($paths['config']['environment']), true, 16, JSON_THROW_ON_ERROR);
+
+// Get proper config
+if ($isTag && empty($environments['_tagged'])) {
+    throw new UnderflowException('System is not configured for tagged depoyments');
+} elseif ($isTag) {
+    $environment = $environments['_tagged'];
+} else {
+    if (!preg_match('/^([a-z][a-z0-9-_]+\/)?[a-z][a-z0-9-_]+$/i', $branch)) {
+        throw new RuntimeException('Branch seems insecure');
+    }
+    $environment = $environments[$branch] ?? null;
+    if (!$environment) {
+        throw new UnderflowException("System is not configured to deploy [$branch]");
+    }
+}
+
+// Echo as JSON if requested
+$result = array_merge($environment, [
+    'branch' => $branch,
+    'hash' => $hash,
+    'tag' => $tag
+]);
+
+// Sort for goodness sake
+ksort($result);
+
+// JSON
+if ($type === 'json') {
+    echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
+    exit(0);
+}
+
+// Github envs
+if ($type === 'github') {
+    foreach ($result as $key => $value) {
+        printf("::set-output name=%s::%s\n", $key, $value);
+    }
+    exit(0);
+}
+
+// Fail
+printf("Unkown output format %s.\n", $type);
+exit(1);

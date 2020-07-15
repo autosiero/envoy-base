@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$( cd "$SCRIPT_DIR/../" && git rev-parse --show-toplevel 2>/dev/null )"
+
+# Create scripts if missing
+if [ ! -e "$ROOT_DIR/Envoy.blade.php" ]; then
+    echo "Installing Envoy in ${ROOT_DIR}..."
+    ln -rs "$SCRIPT_DIR/Envoy.blade.php" "$ROOT_DIR/Envoy.blade.php"
+fi
+
+# Create config dir if missing
+if [ ! -e "$ROOT_DIR/.envoy" ]; then
+    echo "Pre-launching deployment"
+    cd "$ROOT_DIR"
+    envoy run noop --remote=none --branch=master 2>/dev/null
+fi
+
+# Complete
+echo "Done"
