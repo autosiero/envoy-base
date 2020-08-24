@@ -5,6 +5,10 @@
         'branch' => 'branch',
     ];
 
+    // Get app root
+    define('CODE_ROOT', trim(`git rev-parse --show-toplevel 2>/dev/null`));
+    define('TOOL_ROOT', realpath(CODE_ROOT . '/.tools/envoy'));
+
     // Check required vars
     foreach ($required as $var => $label) {
         if (empty($$var)) {
@@ -13,7 +17,7 @@
     }
 
     // Get paths
-    $paths = require dirname(realpath(__FILE__)) . '/file-finder.php';
+    $paths = require TOOL_ROOT . '/file-finder.php';
 
     // Move to root
     chdir($paths['root']);
