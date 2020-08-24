@@ -23,7 +23,7 @@
     chdir($paths['root']);
 
     // Get branch and tag name
-    $branch = preg_match('/([a-z][-_a-z0-9]+)$/', $branch, $matches) ? $matches[1] : $branch;
+    $branch = preg_match('/([a-z][-_a-z0-9\.]+)$/', $branch, $matches) ? $matches[1] : $branch;
     $tag = preg_match('/^(?:[a-z0-9\-]+\/)*([a-z][-_a-z0-9\.]+)$/', $tag ?? '', $matches) ? $matches[1] : null;
 
     // Determine file locations
