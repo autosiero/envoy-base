@@ -35,9 +35,11 @@
     $hash ??= trim(`git log -1 --format='%H'`);
 
     // Get tag
-    $isTag = isset($tag) && !empty($tag) && preg_match('/^(?:refs\/tags\/)?(v\d+\.\d+\.\d+)$/', $tag, $matches);
+    $isTag = isset($tag) && !empty($tag) && preg_match('/^(?:refs\/tags\/)?(v\d+(?:\.\d+)+(?:\-.+)?)$/', $tag, $matches);
     $tag = $isTag ? $matches[1] : null;
-    if (!$isTag && preg_match('/^refs?\/tags\/(v\d+\.\d+)(\.\d+)?(\-.+)?$/', $originalRef, $matches)) {
+
+    // Get tag from original ref if none was found in the $tag field
+    if (!$isTag && preg_match('/^refs?\/tags\/(v\d+(?:\.\d+)+(?:\-.+)?)$/', $originalRef, $matches)) {
         $isTag = true;
         $tag = $matches[1];
     }
