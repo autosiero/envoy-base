@@ -425,8 +425,8 @@
 
     {{-- Un-pause horizon --}}
     echo -e "\nRestarting Laravel Horizon"
-    php artisan horizon:continue
-    php artisan horizon:purge
+    php artisan horizon:continue || true
+    php artisan horizon:purge || true
 
     {{-- Start screen if required --}}
     {{ $livePath }}/resources/bin/start-horizon.sh "{{ $env }}" || true
