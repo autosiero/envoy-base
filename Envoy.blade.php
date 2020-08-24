@@ -37,7 +37,7 @@
     // Get tag
     $isTag = isset($tag) && !empty($tag) && preg_match('/^(?:refs\/tags\/)?(v\d+\.\d+\.\d+)$/', $tag, $matches);
     $tag = $isTag ? $matches[1] : null;
-    if (!$isTag && preg_match('/^refs?\/tags\/(v\d+\.\d+\.\d+)$/', $originalRef, $matches)) {
+    if (!$isTag && preg_match('/^refs?\/tags\/(v\d+\.\d+)(\.\d+)?(\-.+)?$/', $originalRef, $matches)) {
         $isTag = true;
         $tag = $matches[1];
     }
