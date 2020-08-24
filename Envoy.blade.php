@@ -23,6 +23,7 @@
     chdir($paths['root']);
 
     // Get branch and tag name
+    $originalRef = $branch;
     $branch = preg_match('/([a-z][-_a-z0-9\.]+)$/', $branch, $matches) ? $matches[1] : $branch;
     $tag = preg_match('/^(?:[a-z0-9\-]+\/)*([a-z][-_a-z0-9\.]+)$/', $tag ?? '', $matches) ? $matches[1] : null;
 
@@ -36,6 +37,10 @@
     // Get tag
     $isTag = isset($tag) && !empty($tag) && preg_match('/^(?:refs\/tags\/)?(v\d+\.\d+\.\d+)$/', $tag, $matches);
     $tag = $isTag ? $matches[1] : null;
+    if (!$isTag && preg_match('/^refs?\/tags\/(v\d+\.\d+\.\d+)$/', $originalRef, $matches)) {
+        $isTag = true;
+        $tag = $matches[1];
+    }
 
     // If a tag is set, find it's hash
     if ($isTag) {
