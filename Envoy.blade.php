@@ -80,7 +80,7 @@
     } elseif ($isTag) {
         $environment = $environments['_tagged'];
     } else {
-        if (!preg_match('/^([a-z][a-z0-9-_]+\/)?[a-z][a-z0-9-_]+$/i', $branch)) {
+        if (!preg_match('/^([a-z][a-z0-9-_]+\/)?[a-z][a-z0-9-_\.]+$/i', $branch)) {
             throw new RuntimeException('Branch seems insecure');
         }
         $environment = $environments[$branch] ?? null;
