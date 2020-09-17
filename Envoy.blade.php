@@ -290,8 +290,6 @@
     yarn \
         --cache-folder="{{ $root }}/cache/node" \
         --frozen-lockfile \
-        --link-duplicates \
-        --link-folder "{{ $root }}/cache/node-duplicates" \
         --prefer-offline \
         install
 
