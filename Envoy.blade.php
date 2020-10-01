@@ -133,6 +133,7 @@
     $storagePathMap = [
         "/assets" => "assets",
         "/content" => "content",
+        "/users" => "users",
         "/public/assets" => "public-assets",
         "/public/glide-img/containers" => "public-glide-containers",
         "/public/glide-img/paths" => "public-glide-paths",
