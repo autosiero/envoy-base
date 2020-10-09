@@ -294,6 +294,9 @@
         --prefer-offline \
         install
 
+    echo -e "\nPruning cache after install"
+    yarn cache clean
+
     echo -e "\nInstalling Composer dependencies"
     composer \
         --classmap-authoritative \
