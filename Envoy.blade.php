@@ -294,7 +294,9 @@
     echo "Setting up {{ $inDeploy }} to link with {{ $inStorage }}"
 
     {{-- Ensure folder and parent folder exists (for pseudo-directories) --}}
+    NEW_FOLDER=0
     if [ ! -d "{{ $deployPath }}/{{ $inDeploy }}" ]; then
+        NEW_FOLDER=1
         echo "+ Creating directory in deployment (it's likely created during app run)"
         mkdir -p "{{ $deployPath }}/{{ $inDeploy }}"
     fi
@@ -307,8 +309,10 @@
 
     {{-- Update if requested --}}
     @if ($updateContents)
+    if [ $NEW_FOLDER -eq 0 ]; then
         echo "+ Updating source from repository"
         cp -vr --update "{{ $deployPath }}/{{ $inDeploy }}"/* "{{ $storagePath }}/{{ $inStorage }}"
+    fi
     @endif
 
     {{-- Remove from git --}}
