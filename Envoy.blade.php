@@ -131,13 +131,34 @@
 
     // Storage map
     $storagePathMap = [
-        "/assets" => "assets",
-        "/content" => "content",
-        "/users" => "users",
-        "/public/assets" => "public-assets",
-        "/public/glide-img/containers" => "public-glide-containers",
-        "/public/glide-img/paths" => "public-glide-paths",
-        "/storage" => "framework",
+        "/assets" => [
+            "path" => "assets",
+            "update" => false
+        ],
+        "/content" => [
+            "path" => "content",
+            "update" => false
+        ],
+        "/users" => [
+            "path" => "users",
+            "update" => false
+        ],
+        "/public/assets" => [
+            "path" => "public-assets",
+            "update" => false
+        ],
+        "/public/glide-img/containers" => [
+            "path" => "public-glide-containers",
+            "update" => false
+        ],
+        "/public/glide-img/paths" => [
+            "path" => "public-glide-paths",
+            "update" => false
+        ],
+        "/storage" => [
+            "path" => "framework",
+            "update" => false
+        ],
     ];
 
     // Ensure a file exists
@@ -260,6 +281,16 @@
 
     {{-- Map all files --}}
     @foreach ($storagePathMap as $inDeploy => $inStorage)
+    @php
+    $updateContents = false;
+    if (is_array($inStorage)) {
+        $updateContents = $inStorage['update'] ?? false;
+        $inStorage = $inStorage['path'] ?? $inStorage[0] ?? null;
+        if ($inStorage === null) {
+            throw new \Exception("Failed to determine storage location for [$inDeploy]");
+        }
+    }
+    @endphp
     echo "Setting up {{ $inDeploy }} to link with {{ $inStorage }}"
 
     {{-- Ensure folder and parent folder exists (for pseudo-directories) --}}
@@ -273,6 +304,12 @@
         echo "+ Copying source"
         cp -vr "{{ $deployPath }}/{{ $inDeploy }}" "{{ $storagePath }}/{{ $inStorage }}"
     fi
+
+    {{-- Update if requested --}}
+    @if ($updateContents)
+        echo "+ Updating source from repository"
+        cp -vr --update "{{ $deployPath }}/{{ $inDeploy }}"/* "{{ $storagePath }}/{{ $inStorage }}"
+    @endif
 
     {{-- Remove from git --}}
     echo -e "\n+ Removing dir from deployment"
