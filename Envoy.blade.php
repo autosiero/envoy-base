@@ -362,7 +362,7 @@
     cd "{{ $deployPath }}"
 
     echo -e "\nBuilding front-end"
-    yarn build --no-progress
+    yarn build
 
     echo -e "\nRemoving node_modules"
     rm -rf "{{ $deployPath }}/node_modules"
